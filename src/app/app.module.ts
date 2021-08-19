@@ -1,17 +1,16 @@
-import { NgModule } from '@angular/core';
+import { ServerErrorsInterceptor } from './_shared/server-errors.interceptor';
+import { environment } from './../environments/environment';
+import { MaterialModule } from './material/material.module';
 import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { MaterialModule } from './material/material.module';
-
-import { UsuarioComponent } from './pages/usuario/usuario.component';
-import { AddUsuarioComponent } from './pages/usuario/add/add-usuario/add-usuario.component';
-import { EditUsuarioComponent } from './pages/usuario/edit/edit-usuario/edit-usuario.component';
 import { PacienteComponent } from './pages/paciente/paciente.component';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { PacienteEdicionComponent } from './pages/paciente/paciente-edicion/paciente-edicion.component';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MedicoComponent } from './pages/medico/medico.component';
 import { MedicoDialogoComponent } from './pages/medico/medico-dialogo/medico-dialogo.component';
 import { EspecialidadComponent } from './pages/especialidad/especialidad.component';
@@ -21,23 +20,25 @@ import { EspecialidadEdicionComponent } from './pages/especialidad/especialidad-
 import { ConsultaComponent } from './pages/consulta/consulta.component';
 import { EspecialComponent } from './pages/consulta/especial/especial.component';
 import { WizardComponent } from './pages/consulta/wizard/wizard.component';
+import { FlexLayoutModule } from '@angular/flex-layout';
 import { BuscarComponent } from './pages/buscar/buscar.component';
 import { DialogoComponentComponent } from './pages/buscar/dialogo-component/dialogo-component.component';
 import { ReporteComponent } from './pages/reporte/reporte.component';
-import { Not403Component } from './pages/not403/not403.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { LoginComponent } from './pages/login/login.component';
+import { JwtModule } from '@auth0/angular-jwt';
+import { Not403Component } from './pages/not403/not403.component';
 import { RecuperarComponent } from './pages/login/recuperar/recuperar.component';
 import { TokenComponent } from './pages/login/recuperar/token/token.component';
+
+export function tokenGetter(){
+  let tk = sessionStorage.getItem(environment.TOKEN_NAME);
+  return tk != null ? tk : '';
+}
 
 @NgModule({
   declarations: [
     AppComponent,
-    UsuarioComponent,
-    AddUsuarioComponent,
-    EditUsuarioComponent,
     PacienteComponent,
     PacienteEdicionComponent,
     MedicoComponent,
@@ -52,10 +53,10 @@ import { TokenComponent } from './pages/login/recuperar/token/token.component';
     BuscarComponent,
     DialogoComponentComponent,
     ReporteComponent,
-    Not403Component,
     LoginComponent,
+    Not403Component,
     RecuperarComponent,
-    TokenComponent
+    TokenComponent    
   ],
   entryComponents: [MedicoDialogoComponent, DialogoComponentComponent],
   imports: [
@@ -68,8 +69,21 @@ import { TokenComponent } from './pages/login/recuperar/token/token.component';
     ReactiveFormsModule,
     FlexLayoutModule,
     PdfViewerModule,
+    JwtModule.forRoot({
+      config: {
+        tokenGetter: tokenGetter,
+        whitelistedDomains: ['localhost:8080'],
+        blacklistedRoutes: ['http://localhost:8080/login/enviarCorreo']
+      }
+    })
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ServerErrorsInterceptor,
+      multi: true,
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

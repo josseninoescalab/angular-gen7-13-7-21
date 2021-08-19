@@ -2,7 +2,6 @@ import { Paciente } from './../../_model/paciente';
 import { PacienteService } from './../../_service/paciente.service';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource, MatSort, MatPaginator, MatSnackBar } from '@angular/material';
-import { ConsultaService } from 'src/app/_service/consulta.service';
 
 @Component({
   selector: 'app-paciente',
@@ -16,10 +15,9 @@ export class PacienteComponent implements OnInit {
   displayedColumns = ['idPaciente', 'nombres', 'apellidos', 'acciones'];
   @ViewChild(MatSort, {static: true}) sort: MatSort;
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-  archivoPDF;
   //Cuando trabajar pageable no es necesario el MatPaginator con ViewChield
 
-  constructor(private pacienteService : PacienteService, private snack : MatSnackBar, private consultaService: ConsultaService) { }
+  constructor(private pacienteService : PacienteService, private snack : MatSnackBar) { }
 
   ngOnInit() {
     this.pacienteService.pacienteCambio.subscribe(data => {
@@ -48,8 +46,6 @@ export class PacienteComponent implements OnInit {
       this.dataSource.sort = this.sort;
       //this.dataSource.paginator = this.paginator;
     });*/
-
-    this.generarReportePDF();
   }
 
   filtrar(valor: string) {
@@ -74,15 +70,6 @@ export class PacienteComponent implements OnInit {
       this.dataSource.sort = this.sort;
       //this.dataSource.paginator = this.paginator;
     });
-  }
-
-  generarReportePDF(){
-    this.consultaService.generarReportePDF().subscribe( (data) => {
-      //this.archivoPDF = `data:application/pdf;base64,${data.dataFile}`;
-      console.log(this.archivoPDF);
-    }, error => {
-      this.pacienteService.mensajeCambio.next('Error al obtener el pdf');
-    })
   }
 
 }

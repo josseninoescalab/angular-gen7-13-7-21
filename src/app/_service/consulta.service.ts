@@ -49,8 +49,4 @@ export class ConsultaService {
       responseType: 'blob'
     });
   }
-
-  generarReportePDF(){
-    return this.http.get(`${this.url}/generarReporte/pdf`);
-  }
 }
